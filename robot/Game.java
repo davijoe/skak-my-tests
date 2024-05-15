@@ -1,7 +1,11 @@
 package robot;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 import java.util.concurrent.ForkJoinPool;
 
@@ -741,18 +745,53 @@ public class Game {
         return fen.toString();
     }
 
-        public static void main(String[] args) {
-        System.out.println(Runtime.getRuntime().availableProcessors());
+    private static void log(String message) {
+        System.out.println(message); // Print to console
+    }
+
+    private static void logToCSV(String message) {
+        try (FileWriter fw = new FileWriter("performance_log.csv", true);
+             PrintWriter pw = new PrintWriter(fw)) {
+            pw.println(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void logHeader() {
+        try (FileWriter fw = new FileWriter("performance_log.csv", true);
+             PrintWriter pw = new PrintWriter(fw)) {
+            pw.println("Logical Processors,Start Time,End Time,Execution Time (ms),Single-threaded Minimax Time (ms),Best Move,New FEN string");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void logEntry(int logicalProcessors, LocalDateTime startTime, LocalDateTime endTime, long duration, long singleThreadedTime, String bestMove, String newFEN) {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        String entry = String.format("%d,%s,%s,%d,%d,%s,%s",
+                logicalProcessors,
+                startTime.format(formatter),
+                endTime.format(formatter),
+                duration,
+                singleThreadedTime,
+                bestMove,
+                newFEN);
+        logToCSV(entry);
+    }
+
+    public static void main(String[] args) {
+        logHeader(); // Write header to log file
+        int logicalProcessors = Runtime.getRuntime().availableProcessors();
+
+        log("Logical Processors: " + logicalProcessors);
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Enter FEN string:");
+        log("Enter FEN string:");
         String fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-//        String fen = scanner.nextLine(); // Example: rnbqkbnr/ppp1pppp/8/3p4/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 1
-//        System.out.println("Enter search depth for Minimax:");
-//        int depth = scanner.nextInt();
         int depth = 7;
-        System.out.println("Searching in depth " + depth + "...");
-        
+        log("Searching in depth " + depth + "...");
+
         Game game = new Game();
         game.initializeBoard(fen);
         game.printBoard();
@@ -760,19 +799,27 @@ public class Game {
         LocalDateTime startTime, endTime;
 
         startTime = LocalDateTime.now();
-        //single-threaded test
+        log("Start Time: " + startTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+
+        // Single-threaded test
         int[] bestMove = minimax(game, depth, Integer.MIN_VALUE, Integer.MAX_VALUE, true);
         endTime = LocalDateTime.now();
 
         long singleThreadedTime = Duration.between(startTime, endTime).toMillis();
-        System.out.println("Single-threaded Minimax Time: " + singleThreadedTime + " milliseconds");
+        log("End Time: " + endTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        log("Execution Time: " + singleThreadedTime + " milliseconds");
 
-        System.out.println("bestmove: " + bestMove[1]+ bestMove[2]+ bestMove[3]+ bestMove[4]);
-        game.makeMove(bestMove[1],bestMove[2],bestMove[3],bestMove[4]);
+        String bestMoveString = bestMove[1] + "" + bestMove[2] + "" + bestMove[3] + "" + bestMove[4];
+        log("Single-threaded Minimax Time: " + singleThreadedTime + " milliseconds");
+        log("bestmove: " + bestMoveString);
+
+        game.makeMove(bestMove[1], bestMove[2], bestMove[3], bestMove[4]);
         game.printBoard();
+
         String newFEN = game.getFEN();
-        System.out.println("New FEN string:");
-        System.out.println(newFEN);
+        log("New FEN string: " + newFEN);
+
+        logEntry(logicalProcessors, startTime, endTime, singleThreadedTime, singleThreadedTime, bestMoveString, newFEN);
     }
 
     public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
