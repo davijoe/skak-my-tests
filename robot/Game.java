@@ -761,20 +761,19 @@ public class Game {
     private static void logHeader() {
         try (FileWriter fw = new FileWriter("performance_log.csv", true);
              PrintWriter pw = new PrintWriter(fw)) {
-            pw.println("Logical Processors,Start Time,End Time,Execution Time (ms),Single-threaded Minimax Time (ms),Best Move,New FEN string");
+            pw.println("Logical Processors,Start Time,End Time,Execution Time (ms),Best Move,New FEN string");
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static void logEntry(int logicalProcessors, LocalDateTime startTime, LocalDateTime endTime, long duration, long singleThreadedTime, String bestMove, String newFEN) {
+    private static void logEntry(int logicalProcessors, LocalDateTime startTime, LocalDateTime endTime, long duration, String bestMove, String newFEN) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        String entry = String.format("%d,%s,%s,%d,%d,%s,%s",
+        String entry = String.format("%d,%s,%s,%d,%s,%s",
                 logicalProcessors,
                 startTime.format(formatter),
                 endTime.format(formatter),
                 duration,
-                singleThreadedTime,
                 bestMove,
                 newFEN);
         logToCSV(entry);
@@ -819,7 +818,7 @@ public class Game {
         String newFEN = game.getFEN();
         log("New FEN string: " + newFEN);
 
-        logEntry(logicalProcessors, startTime, endTime, singleThreadedTime, singleThreadedTime, bestMoveString, newFEN);
+        logEntry(logicalProcessors, startTime, endTime, singleThreadedTime, bestMoveString, newFEN);
     }
 
     public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
