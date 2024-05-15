@@ -24,7 +24,6 @@ public class Game {
     private int kingRow, kingCol;
     char currentPlayer;
     int heuristicValue;
-//    boolean isMaximizing;
 
     public Game() {
 
@@ -357,7 +356,6 @@ public class Game {
                 }
             }
         }
-
         return numWhitePieces <= 1 && numBlackPieces <= 1;
     }
 
@@ -378,23 +376,22 @@ public class Game {
                 }
             }
         }
-
         return whiteScore - blackScore;
     }
 
     private int getPieceValue(int piece) {
         return switch (piece) {
-            case 6, 7, 14, 15 -> //pawns
+            case 6, 7, 14, 15 -> // PAWNS
                     100;
-            case 2, 10 ->  //knights
+            case 2, 10 ->  // KNIGHTS
                     300;
-            case 3, 11 -> //bishop
+            case 3, 11 -> // BISHOPS
                     320;
-            case 1, 9 ->  //rook
+            case 1, 9 ->  // ROOKS
                     540;
-            case 4, 12 -> //queen
+            case 4, 12 -> // QUEENS
                     900;
-            case 5, 13 -> //king
+            case 5, 13 -> // KINGS
                     20000;
             default -> 0;
         };
@@ -403,17 +400,17 @@ public class Game {
     private int getPiecePositionValue(int piece, int row, int col) {
         int value = 0;
         switch (piece) {
-            case 6, 7, 13, 14 -> // White PAWNS < Black PAWNS
+            case 6, 7, 13, 14 -> // PAWNS
                 value = pawnPositionValue(row, col);
-            case 2, 9 -> // White KNIGHTS < Black KNIGHTS
+            case 2, 9 -> // KNIGHTS
                 value = knightPositionValue(row, col);
-            case 3, 10 -> // White BISHOPS < Black BISHOPS
+            case 3, 10 -> // BISHOPS
                 value = bishopPositionValue(row, col);
-            case 1, 8 -> // White ROOK < Black ROOKS
+            case 1, 8 -> // ROOKS
                 value = rookPositionValue(row, col);
-            case 4, 11 -> // White QUEEN < Black QUEEN
+            case 4, 11 -> // QUEENS
                 value = queenPositionValue(row, col);
-            case 5, 12 -> // White KING < Black KING
+            case 5, 12 -> // KINGS
                 value = kingPositionValue(row, col);
         }
         return value;
