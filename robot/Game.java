@@ -763,19 +763,21 @@ public class Game {
         }
     }
 
-    private static void logEntry(int logicalProcessors, LocalDateTime startTime, LocalDateTime endTime, long duration, String bestMove, String newFEN) {
+    private static void logEntry(int logicalProcessors, LocalDateTime startTime, LocalDateTime endTime, long duration, int depth, String bestMove, String newFEN) {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
-        String entry = String.format("%d,%s,%s,%d,%s,%s",
+        String entry = String.format("%d,%s,%s,%d,%d,%s,%s",
                 logicalProcessors,
                 startTime.format(formatter),
                 endTime.format(formatter),
                 duration,
+                depth,
                 bestMove,
                 newFEN);
         logToCSV(entry);
     }
 
     public static void main(String[] args) {
+        // Initialize logging header (optional)
 //        logHeader(); // Write header to log file
 
         int logicalProcessors = Runtime.getRuntime().availableProcessors();
@@ -786,7 +788,7 @@ public class Game {
         System.out.println("Enter FEN string:");
         String fen = scanner.nextLine();
 
-        int depth = 4;
+        int depth = 7;
 
         System.out.println("Searching in depth " + depth + "...");
 
@@ -813,7 +815,7 @@ public class Game {
         String newFEN = game.getFEN();
         System.out.println("New FEN string: " + newFEN);
 
-        logEntry(logicalProcessors, startTime, endTime, singleThreadedTime, bestMoveString, newFEN);
+        logEntry(logicalProcessors, startTime, endTime, singleThreadedTime, depth, bestMoveString, newFEN);
     }
 
     public static int[] parallelMinimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
@@ -823,7 +825,6 @@ public class Game {
         int[] result = pool.invoke(task);
         int nodeCount = task.getNodeCount();
         return new int[]{nodeCount, result[0], result[1], result[2], result[3]};
-
     }
 
     public static int[] minimax(Game game, int depth, int alpha, int beta, boolean maximizingPlayer) {
