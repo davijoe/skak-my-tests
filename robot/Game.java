@@ -745,10 +745,6 @@ public class Game {
         return fen.toString();
     }
 
-    private static void log(String message) {
-        System.out.println(message); // Print to console
-    }
-
     private static void logToCSV(String message) {
         try (FileWriter fw = new FileWriter("performance_log.csv", true);
              PrintWriter pw = new PrintWriter(fw)) {
